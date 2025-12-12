@@ -31,15 +31,17 @@ class ChXParser {
             }
             
             // Multi-line comments
-            if (source[i] === '/' && source[i + 1] === '*') {
+            if (source[i] === '/' && i + 1 < source.length && source[i + 1] === '*') {
                 let comment = '/*';
                 i += 2;
-                while (i < source.length && !(source[i] === '*' && source[i + 1] === '/')) {
+                while (i < source.length && !(source[i] === '*' && i + 1 < source.length && source[i + 1] === '/')) {
                     comment += source[i];
                     i++;
                 }
-                comment += '*/';
-                i += 2;
+                if (i < source.length) {
+                    comment += '*/';
+                    i += 2;
+                }
                 tokens.push({ type: 'COMMENT', value: comment });
                 continue;
             }
@@ -67,18 +69,24 @@ class ChXParser {
                         str += source[i];
                         i++;
                     }
-                    i += 3;
+                    if (i < source.length) {
+                        i += 3;
+                    }
                 } else {
                     i++;
                     while (i < source.length && source[i] !== '"') {
-                        if (source[i] === '\\') {
+                        if (source[i] === '\\' && i + 1 < source.length) {
                             str += source[i];
                             i++;
                         }
-                        str += source[i];
+                        if (i < source.length) {
+                            str += source[i];
+                            i++;
+                        }
+                    }
+                    if (i < source.length) {
                         i++;
                     }
-                    i++;
                 }
                 tokens.push({ type: 'STRING', value: str });
                 continue;
@@ -660,18 +668,21 @@ class PromptGenerator {
         let role = null;
         let tasks = [];
         let includes = [];
+        let roleHolder = [null]; // Use array as mutable holder
         
         this.extractFromBody(ast.body, {
             systemContent,
             userContent,
             rules,
-            roleRef: { value: role },
+            roleHolder,
             tasks,
             includes
         });
         
+        const role = roleHolder[0];
+        
         // Build prompt
-        if (systemContent.length > 0 || rules.length > 0) {
+        if (systemContent.length > 0 || rules.length > 0 || role) {
             parts.push('=== SYSTEM ===');
             if (role) {
                 parts.push(`You are a ${role}.`);
@@ -710,7 +721,7 @@ class PromptGenerator {
                     this.extractFromBody(node.body, ctx);
                     break;
                 case 'Role':
-                    ctx.roleRef.value = node.value;
+                    ctx.roleHolder[0] = node.value;
                     break;
                 case 'Rules':
                     ctx.rules.push(...node.rules);
