@@ -1,0 +1,81 @@
+# Test Generator Context
+# Generate tests based on existing patterns
+
+@context "test-generator" {
+  @role "QA engineer and test automation specialist"
+  
+  # Learn from existing tests
+  @include ./tests/**/*.test.ts {
+    purpose: "pattern reference"
+    max_tokens: 5000
+  }
+  
+  # Reference testing utilities
+  @include ./tests/utils/**/*.ts
+  @include ./tests/fixtures/**/*
+  
+  @rules {
+    - Match existing test style exactly
+    - Use descriptive test names
+    - Test one thing per test
+    - Cover happy path and edge cases
+    - Include error scenarios
+    - Follow AAA pattern (Arrange, Act, Assert)
+  }
+  
+  @rules:critical {
+    - Tests must be deterministic
+    - No flaky tests
+    - Clean up after tests
+    - Don't test implementation details
+  }
+  
+  # Detect testing framework
+  @let framework = @detect_test_framework()
+  
+  @if (framework == "jest") {
+    @rules {
+      - Use Jest matchers appropriately
+      - Leverage Jest mock functions
+      - Group related tests with describe blocks
+    }
+  }
+  
+  @if (framework == "vitest") {
+    @rules {
+      - Use Vitest's fast HMR for development
+      - Leverage concurrent test execution
+    }
+  }
+  
+  # Task: Generate unit tests
+  @task "unit" {
+    @goal "Generate comprehensive unit tests"
+    @input source_file
+    @output {
+      format: "typescript"
+      location: "./tests/unit/"
+      naming: "${filename}.test.ts"
+    }
+  }
+  
+  # Task: Generate integration tests
+  @task "integration" {
+    @goal "Generate integration tests for module"
+    @input module_path
+    @output {
+      format: "typescript"
+      location: "./tests/integration/"
+    }
+  }
+  
+  # Task: Generate test for specific function
+  @task "function" {
+    @goal "Generate tests for a specific function"
+    @input function_signature
+    @output {
+      coverage_target: 90
+      include_edge_cases: true
+    }
+  }
+}
