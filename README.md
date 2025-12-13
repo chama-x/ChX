@@ -1,186 +1,73 @@
-# ⟨ChX⟩
+# React + TypeScript + Vite
 
-## Universal Context Language
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://chama-x.github.io/ChX/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+Currently, two official plugins are available:
 
-**ChX** is a Universal Context Language for standardizing context engineering in AI/LLM applications. Write structured prompts, manage file connections, and build advanced AI workflows with a clean, expressive syntax.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-🌐 **[Live Documentation & Playground →](https://chama-x.github.io/ChX/)**
+## React Compiler
 
----
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## Why ChX?
+## Expanding the ESLint configuration
 
-Context engineering for AI applications often becomes:
-- 🍝 **Spaghetti prompts** - Hard to maintain, no structure
-- 🔄 **Copy-paste chaos** - No reusability across projects
-- 📁 **Manual file handling** - Tedious context assembly
-- 🎯 **Inconsistent results** - No best practices enforcement
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-ChX solves this with:
-- ✅ **Structured syntax** - Define context with clear hierarchies
-- ✅ **File integration** - Reference files with glob patterns
-- ✅ **Composable blocks** - Reuse context like code modules
-- ✅ **Best practices** - Built-in patterns from research
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
----
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-## Quick Example
-
-```chx
-@context "code-assistant" {
-  @role "senior software engineer"
-  
-  @rules {
-    - Write clean, readable code
-    - Follow best practices
-    - Explain your reasoning
-  }
-  
-  @include ./src/**/*.ts {
-    max_tokens: 5000
-  }
-  
-  @task "review" {
-    @goal "Review code for bugs and improvements"
-    @output {
-      format: "markdown"
-      sections: ["summary", "issues", "suggestions"]
-    }
-  }
-}
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
----
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-## Core Features
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-### 📐 Context Blocks
-Define named scopes with clear boundaries:
-```chx
-@context "my-assistant" {
-  # Everything here belongs to this context
-}
-
-@context:system "core-rules" {
-  # System-level context (highest priority)
-}
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-### 👤 Roles & Expertise
-Assign clear identities:
-```chx
-@role "expert TypeScript developer" {
-  @expertise ["system design", "testing", "performance"]
-}
-```
-
-### 📋 Scoped Rules
-Apply rules at different priority levels:
-```chx
-@rules {
-  - Be concise
-  - Use examples
-}
-
-@rules:critical {
-  - Never output harmful content
-  - Protect user privacy
-}
-```
-
-### 📁 File Integration
-Reference your codebase:
-```chx
-@include ./src/**/*.ts
-@include ./docs/*.md { max_tokens: 2000 }
-@exclude ./node_modules/**
-```
-
-### 💎 Variables & Conditions
-Dynamic context configuration:
-```chx
-@let project = "MyApp"
-@let env = @env("NODE_ENV", "development")
-
-@if (env == "production") {
-  @rules { - Optimize for performance }
-}
-```
-
-### 🧩 Composition
-Build complex contexts from simple blocks:
-```chx
-@import { coding_rules } from ./contexts/base.chx
-
-@mixin security_checks {
-  @rules:critical { - Validate all inputs }
-}
-
-@context "api-handler" extends "base-handler" {
-  @apply security_checks
-}
-```
-
----
-
-## Documentation
-
-Visit the **[full documentation](https://chama-x.github.io/ChX/)** for:
-
-- 📖 Complete language specification
-- 🎮 Interactive playground
-- 💡 Real-world examples
-- 🚀 Getting started guide
-
----
-
-## Use Cases
-
-| Use Case | Description |
-|----------|-------------|
-| **Code Review** | Structured review with specific focus areas |
-| **Documentation** | Consistent docs from your codebase |
-| **Test Generation** | Tests matching your existing patterns |
-| **Security Audit** | Systematic vulnerability checking |
-| **Refactoring** | Context-aware code improvements |
-
----
-
-## Project Structure
-
-```
-ChX/
-├── docs/           # GitHub Pages website
-│   ├── index.html  # Main documentation page
-│   ├── css/        # Styles
-│   └── js/         # Interactive playground
-├── README.md       # This file
-└── LICENSE         # MIT License
-```
-
----
-
-## Contributing
-
-Contributions are welcome! Feel free to:
-
-- 🐛 Report bugs
-- 💡 Suggest features  
-- 📖 Improve documentation
-- 🔧 Submit pull requests
-
----
-
-## License
-
-MIT License © 2024 ChX Contributors
-
----
-
-<p align="center">
-  <strong>⟨ChX⟩</strong> - Write Context Like Code
-</p>
-
