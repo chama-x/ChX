@@ -10,7 +10,12 @@ export default defineConfig({
     {
       name: 'create-nojekyll',
       closeBundle() {
-        writeFileSync(resolve(__dirname, 'docs', '.nojekyll'), '')
+        const outDir = 'docs'
+        try {
+          writeFileSync(resolve(__dirname, outDir, '.nojekyll'), '')
+        } catch (error) {
+          console.error('Failed to create .nojekyll file:', error)
+        }
       }
     }
   ],
